@@ -1,0 +1,17 @@
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/CMakeFiles/edit_cache.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/CMakeFiles/test.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/CMakeFiles/clean_data_LargeBarrelAnalysis.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/CMakeFiles/rebuild_cache.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/CMakeFiles/LargeBarrelAnalysis.x.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/edit_cache.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/test.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/ToTEnergyConverterTest.x.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/ToTEnergyConverterFactoryTest.x.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/TimeWindowCreatorToolsTest.x.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/SignalFinderToolsTest.x.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/HitFinderToolsTest.x.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/rebuild_cache.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/tests_largebarrel.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/UniversalFileLoaderTest.x.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/EventCategorizerToolsTest.x.dir
+/home/justyna/j-pet-framework-examples/LargeBarrelAnalysis/build/tests/CMakeFiles/link_target_largebarrelanalysis.dir
