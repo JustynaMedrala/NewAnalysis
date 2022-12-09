@@ -20,6 +20,23 @@
 
 using namespace std;
 
+bool EventCategorizerTools::checkFor1Gamma(const JPetEvent& event, double deexTOTCutMin, double deexTOTCutMax){
+  double anniTOTCutMin=0.0;
+  double anniTOTCutMax=350.0;
+  if (event.getHits().size() != 2) {
+    return false;
+  }
+  int num_prompt = 0;
+  for (unsigned i = 0; i < event.getHits().size(); i++) {
+    double tot = event.getHits().at(i).getEnergy();
+    if (tot > deexTOTCutMin && tot < deexTOTCutMax) { num_prompt += 1;}
+    else if(event.getHits().at(i).getEnergy() < anniTOTCutMin || event.getHits().at(i).getEnergy() > anniTOTCutMax) return false;
+  }
+  if(num_prompt == 1){
+    num_1Gamma += 1;
+    return true;}
+}
+
 /**
 * Method for determining type of event - back to back 2 gamma
 */
@@ -31,6 +48,7 @@ bool EventCategorizerTools::checkFor2Gamma(
   if (event.getHits().size() < 2) {
     return false;
   }
+  num_2Gamma_bc += 1;
   double anniTOTCutMin=0.0;
   double anniTOTCutMax=350.0;
   for (uint i = 0; i < event.getHits().size(); i++) {
@@ -69,7 +87,8 @@ bool EventCategorizerTools::checkFor2Gamma(
           stats.fillHistogram("AnnihPoint_ZY", annhilationPoint.Z(), annhilationPoint.Y());
           stats.fillHistogram("Annih_DLOR", deltaLor);
         }
-        return true;
+        num_2Gamma_ac += 1;
+	return true;
       }
     }
   }
@@ -82,6 +101,7 @@ bool EventCategorizerTools::checkFor2Gamma(
 bool EventCategorizerTools::checkFor3Gamma(const JPetEvent& event, JPetStatistics& stats, bool saveHistos)
 {
   if (event.getHits().size() < 3) return false;
+  num_3Gamma_bc += 1;
   for (uint i = 0; i < event.getHits().size(); i++) {
     for (uint j = i + 1; j < event.getHits().size(); j++) {
       for (uint k = j + 1; k < event.getHits().size(); k++) {
@@ -109,6 +129,7 @@ bool EventCategorizerTools::checkFor3Gamma(const JPetEvent& event, JPetStatistic
       }
     }
   }
+  num_3Gamma_ac += 1;
   return true;
 }
 
@@ -120,6 +141,7 @@ bool EventCategorizerTools::checkForPrompt(
   double deexTOTCutMin, double deexTOTCutMax, std::string fTOTCalculationType)
 {
   for (unsigned i = 0; i < event.getHits().size(); i++) {
+    num_prompt_bc += 1;
     //double tot = HitFinderTools::calculateTOT(event.getHits().at(i), 
     //                                          HitFinderTools::getTOTCalculationType(fTOTCalculationType));
     double tot = event.getHits().at(i).getEnergy();
@@ -127,6 +149,7 @@ bool EventCategorizerTools::checkForPrompt(
       if (saveHistos) {
         stats.fillHistogram("Deex_TOT_cut", tot);
       }
+      num_prompt_ac += 1;
       return true;
     }
   }
@@ -144,6 +167,7 @@ bool EventCategorizerTools::checkForScatter(
     return false;
   }
   for (uint i = 0; i < event.getHits().size(); i++) {
+  num_scattered_bc += 1;
     for (uint j = i + 1; j < event.getHits().size(); j++) {
       JPetHit primaryHit, scatterHit;
       if (event.getHits().at(i).getTime() < event.getHits().at(j).getTime()) {
@@ -162,6 +186,13 @@ bool EventCategorizerTools::checkForScatter(
         stats.fillHistogram("ScatterTOF_TimeDiff", fabs(scattTOF - timeDiff));
       }
 
+
+      stats.fillHistogram("ScatterAngle_PrimaryTOT_before_cut", scattAngle, HitFinderTools::calculateTOT(primaryHit,
+                                                        HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
+      stats.fillHistogram("ScatterAngle_ScatterTOT_before_cut", scattAngle, HitFinderTools::calculateTOT(scatterHit,
+                                                        HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
+
+
       if (fabs(scattTOF - timeDiff) < scatterTOFTimeDiff) {
         if (saveHistos) {
           stats.fillHistogram("ScatterAngle_PrimaryTOT", scattAngle, HitFinderTools::calculateTOT(primaryHit, 
@@ -169,6 +200,7 @@ bool EventCategorizerTools::checkForScatter(
           stats.fillHistogram("ScatterAngle_ScatterTOT", scattAngle, HitFinderTools::calculateTOT(scatterHit, 
                                                         HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
         }
+	num_scattered_ac += 1;
         return true;
       }
     }

@@ -20,6 +20,8 @@
 #include <JPetEvent/JPetEvent.h>
 #include <JPetHit/JPetHit.h>
 
+extern int num_2Gamma_bc, num_2Gamma_ac, num_3Gamma_bc, num_3Gamma_ac, num_prompt_bc, num_prompt_ac, num_scattered_bc, num_scattered_ac, num_1Gamma;
+
 static const double kLightVelocity_cm_ps = 0.0299792458;
 static const double kUndefinedValue = 999.0;
 
@@ -31,6 +33,7 @@ static const double kUndefinedValue = 999.0;
 class EventCategorizerTools
 {
 public:  
+  static bool checkFor1Gamma(const JPetEvent& event, double deexTOTCutMin, double deexTOTCutMax);
   static bool checkFor2Gamma(const JPetEvent& event, JPetStatistics& stats,
                            bool saveHistos, double b2bSlotThetaDiff, double b2bTimeDiff);
   static bool checkFor3Gamma(const JPetEvent& event, JPetStatistics& stats, bool saveHistos);

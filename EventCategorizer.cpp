@@ -107,6 +107,9 @@ bool EventCategorizer::exec()
       bool isScattered = EventCategorizerTools::checkForScatter(
         event, getStatistics(), fSaveControlHistos, fScatterTOFTimeDiff, fTOTCalculationType
       );
+      bool is1Gamma = EventCategorizerTools::checkFor1Gamma(
+	event, fDeexTOTCutMin, fDeexTOTCutMax
+      );
 
       JPetEvent newEvent = event;
       if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
@@ -255,6 +258,18 @@ void EventCategorizer::initialiseHistograms(){
     new TH1D("ScatterTOF_TimeDiff", "Difference of Scatter TOF and hits time difference",
     3.0*fScatterTOFTimeDiff, -0.5, 3.0*fScatterTOFTimeDiff-0.5),
     "Scat_TOF - time diff [ps]", "Number of Hit Pairs"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH2D("ScatterAngle_PrimaryTOT_before_cut", "Angle of scattering vs. TOT of primary hits before cut",
+    200, -0.5, 199.5, 200, -100.0, 39900.0),
+    "Scattering Angle", "TOT of primary hit [ps]"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH2D("ScatterAngle_ScatterTOT_before_cut", "Angle of scattering vs. TOT of scattered hits before cut",
+    200, -0.5, 199.5, 200, -100.0, 39900.0),
+    "Scattering Angle", "TOT of scattered hit [ps]"
   );
 
   getStatistics().createHistogramWithAxes(

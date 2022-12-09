@@ -24,6 +24,17 @@
 
 using namespace std;
 
+int num_prompt_bc = 0;
+int num_prompt_ac = 0;
+int num_2Gamma_bc = 0;
+int num_2Gamma_ac = 0;
+int num_3Gamma_bc = 0;
+int num_3Gamma_ac = 0;
+int num_scattered_bc = 0;
+int num_scattered_ac = 0;
+int num_1Gamma = 0;
+
+
 int main(int argc, const char* argv[])
 {
   try
@@ -53,5 +64,11 @@ int main(int argc, const char* argv[])
     std::cerr << "Unrecoverable error occured:" << except.what() << "Exiting the program!" << std::endl;
     return EXIT_FAILURE;
   }
+  cout<<"Number of 2 Gamma before cut: "<<num_2Gamma_bc<<"\nNumber of 2 Gamma after cut: "<<num_2Gamma_ac<<endl;
+  cout<<"Number of 3 Gamma before cut: "<<num_3Gamma_bc<<"\nNumber of 3 Gamma after cut: "<<num_3Gamma_ac<<endl;
+  cout<<"Number of prompt before cut: "<<num_prompt_bc<<"\nNumber of prompt after cut: "<<num_prompt_ac<<endl;
+  cout<<"Number of scatter before cut: "<<num_scattered_bc<<"\nNumber of scatter after cut: "<<num_scattered_ac<<endl;
+  cout<<"Number of 1 Gamma: "<<num_1Gamma<<endl;
+  cout<<"Efficiency: "<<float(num_1Gamma)/float(num_2Gamma_ac)<<endl;
   return EXIT_SUCCESS;
 }
