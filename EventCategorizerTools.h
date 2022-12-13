@@ -19,6 +19,7 @@
 #include <JPetStatistics/JPetStatistics.h>
 #include <JPetEvent/JPetEvent.h>
 #include <JPetHit/JPetHit.h>
+#include <JPetGeantScinHits/JPetGeantScinHits.h>
 
 extern int num_2Gamma_bc, num_2Gamma_ac, num_3Gamma_bc, num_3Gamma_ac, num_prompt_bc, num_prompt_ac, num_scattered_bc, num_scattered_ac, num_1Gamma;
 
@@ -59,7 +60,7 @@ public:
   static TVector3 calculateAnnihilationPoint(const TVector3& hitA, const TVector3& hitB, double tof);
   static double calculatePlaneCenterDistance(const JPetHit& firstHit,
       const JPetHit& secondHit, const JPetHit& thirdHit);
-
+  static bool checkID(JPetGeantScinHits& firstHit, JPetGeantScinHits& secondHit);
 };
 
 #endif /* !EVENTCATEGORIZERTOOLS_H */

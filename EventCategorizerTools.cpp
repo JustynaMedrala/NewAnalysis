@@ -48,11 +48,11 @@ bool EventCategorizerTools::checkFor2Gamma(
   if (event.getHits().size() < 2) {
     return false;
   }
-  num_2Gamma_bc += 1;
   double anniTOTCutMin=0.0;
   double anniTOTCutMax=350.0;
   for (uint i = 0; i < event.getHits().size(); i++) {
     for (uint j = i + 1; j < event.getHits().size(); j++) {
+      num_2Gamma_bc += 1;
       JPetHit firstHit, secondHit;
       if (event.getHits().at(i).getEnergy() < anniTOTCutMin || event.getHits().at(i).getEnergy() > anniTOTCutMax) return false;
       if (event.getHits().at(i).getTime() < event.getHits().at(j).getTime()) {
@@ -101,10 +101,10 @@ bool EventCategorizerTools::checkFor2Gamma(
 bool EventCategorizerTools::checkFor3Gamma(const JPetEvent& event, JPetStatistics& stats, bool saveHistos)
 {
   if (event.getHits().size() < 3) return false;
-  num_3Gamma_bc += 1;
   for (uint i = 0; i < event.getHits().size(); i++) {
     for (uint j = i + 1; j < event.getHits().size(); j++) {
       for (uint k = j + 1; k < event.getHits().size(); k++) {
+        num_3Gamma_bc += 1;
         JPetHit firstHit = event.getHits().at(i);
         JPetHit secondHit = event.getHits().at(j);
         JPetHit thirdHit = event.getHits().at(k);
@@ -152,6 +152,9 @@ bool EventCategorizerTools::checkForPrompt(
       num_prompt_ac += 1;
       return true;
     }
+    if (saveHistos) {
+      stats.fillHistogram("Deex_TOT_anticut", tot);
+    }
   }
   return false;
 }
@@ -167,8 +170,8 @@ bool EventCategorizerTools::checkForScatter(
     return false;
   }
   for (uint i = 0; i < event.getHits().size(); i++) {
-  num_scattered_bc += 1;
     for (uint j = i + 1; j < event.getHits().size(); j++) {
+      num_scattered_bc += 1;
       JPetHit primaryHit, scatterHit;
       if (event.getHits().at(i).getTime() < event.getHits().at(j).getTime()) {
         primaryHit = event.getHits().at(i);
@@ -186,12 +189,12 @@ bool EventCategorizerTools::checkForScatter(
         stats.fillHistogram("ScatterTOF_TimeDiff", fabs(scattTOF - timeDiff));
       }
 
-
-      stats.fillHistogram("ScatterAngle_PrimaryTOT_before_cut", scattAngle, HitFinderTools::calculateTOT(primaryHit,
+      if (saveHistos) {
+        stats.fillHistogram("ScatterAngle_PrimaryTOT_before_cut", scattAngle, HitFinderTools::calculateTOT(primaryHit,
                                                         HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
-      stats.fillHistogram("ScatterAngle_ScatterTOT_before_cut", scattAngle, HitFinderTools::calculateTOT(scatterHit,
+        stats.fillHistogram("ScatterAngle_ScatterTOT_before_cut", scattAngle, HitFinderTools::calculateTOT(scatterHit,
                                                         HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
-
+      }
 
       if (fabs(scattTOF - timeDiff) < scatterTOFTimeDiff) {
         if (saveHistos) {
@@ -289,4 +292,10 @@ double EventCategorizerTools::calculatePlaneCenterDistance(
     ERROR("One of the hit has zero position vector - unable to calculate distance from the center of the surface");
     return -1.;
   }
+}
+
+bool EventCategorizerTools::checkID(JPetHit& firstHit, JPetHit& secondHit){
+   return firstHit.getScintillator().getID() == secondHit.getScintillator().getID();
+   //JPetHit --> .getScintillator().getID()
+
 }

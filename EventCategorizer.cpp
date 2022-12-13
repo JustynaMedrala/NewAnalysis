@@ -262,25 +262,25 @@ void EventCategorizer::initialiseHistograms(){
 
   getStatistics().createHistogramWithAxes(
     new TH2D("ScatterAngle_PrimaryTOT_before_cut", "Angle of scattering vs. TOT of primary hits before cut",
-    200, -0.5, 199.5, 200, -100.0, 39900.0),
+    200, -0.5, 199.5, 10, -1.0, 2.0),
     "Scattering Angle", "TOT of primary hit [ps]"
   );
 
   getStatistics().createHistogramWithAxes(
     new TH2D("ScatterAngle_ScatterTOT_before_cut", "Angle of scattering vs. TOT of scattered hits before cut",
-    200, -0.5, 199.5, 200, -100.0, 39900.0),
+    200, -0.5, 199.5, 10, -1.0, 2.0),
     "Scattering Angle", "TOT of scattered hit [ps]"
   );
 
   getStatistics().createHistogramWithAxes(
     new TH2D("ScatterAngle_PrimaryTOT", "Angle of scattering vs. TOT of primary hits",
-    200, -0.5, 199.5, 200, -100.0, 39900.0),
+    200, -0.5, 199.5, 10, -1.0, 2.0),
     "Scattering Angle", "TOT of primary hit [ps]"
   );
 
   getStatistics().createHistogramWithAxes(
     new TH2D("ScatterAngle_ScatterTOT", "Angle of scattering vs. TOT of scattered hits",
-    200, -0.5, 199.5, 200, -100.0, 39900.0),
+    200, -0.5, 199.5, 10, -1.0, 2.0),
     "Scattering Angle", "TOT of scattered hit [ps]"
   );
 
@@ -310,4 +310,10 @@ void EventCategorizer::initialiseHistograms(){
     new TH1D("Deex_TOT_cut", "TOT of all hits with deex cut (30,50) ns", 200, 24950.0, 54950.0),
     "TOT [ps]", "Number of Hits"
   );
+
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_TOT_anticut", "TOT of all hits without deex cut (30, 50)  ns", 200, 24950.0, 54950.0),
+    "TOT [ps]", "Number of Hits"
+  );
+
 }
