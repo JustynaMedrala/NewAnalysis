@@ -149,9 +149,8 @@ bool EventCategorizer::exec()
 	if(is2Gamma&&isPrompt) num_2gamma_prompt += 1;
 	if(is2Gamma&&!isScattered&&isPrompt&&whichIsPrompt != 1000) num_2gamma_no_scatter_prompt += 1;
 	if(is3Gamma&&!isScattered) num_3gamma_no_scatter += 1;
-        if(is3Gamma&&isPrompt) num_3gamma_prompt += 1;
+        if(is3Gamma&&isPrompt&&whichIsPrompt != 1000) num_3gamma_prompt += 1;
         if(is3Gamma&&!isScattered&&isPrompt&&whichIsPrompt != 1000) num_3gamma_no_scatter_prompt += 1;
-
 	if(isPrompt&&whichIsPrompt == 1000) num_improper_prompt += 1;
 	if(is2Gamma&&isPrompt){
 	  if(event.getHits().size()==3&&whichIsPrompt != 1000){
@@ -159,13 +158,15 @@ bool EventCategorizer::exec()
        	    whichIsPhoton2 = (whichIsPrompt+2)%3;
             getStatistics().fillHistogram("Lifetime 2 Gamma", event.getHits().at(whichIsPrompt).getTime()-(event.getHits().at(whichIsPhoton1).getTime()+event.getHits().at(whichIsPhoton2).getTime())/2.);}
 	}
-        if(is3Gamma&&isPrompt&&!isScattered){
+        if(is3Gamma&&isPrompt){
+	  //cout<<"Size: "<<event.getHits().size()<<endl;
           if(event.getHits().size()==4&&whichIsPrompt != 1000){
             whichIsPhoton1 = (whichIsPrompt+1)%4;
             whichIsPhoton2 = (whichIsPrompt+2)%4;
 	    whichIsPhoton3 = (whichIsPrompt+3)%4;
 	    double time = event.getHits().at(whichIsPhoton1).getTime()+event.getHits().at(whichIsPhoton2).getTime()+event.getHits().at(whichIsPhoton3).getTime();
-            getStatistics().fillHistogram("Lifetime 3 Gamma", event.getHits().at(whichIsPrompt).getTime()-(time/3.));}
+            //cout<<(event.getHits().at(whichIsPrompt).getTime()-(time/3.))<<endl;
+	    getStatistics().fillHistogram("Lifetime 3 Gamma", event.getHits().at(whichIsPrompt).getTime()-(time/3.));}
         }
 
 	if(is2Gamma){
