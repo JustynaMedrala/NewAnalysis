@@ -22,7 +22,9 @@
 #include <JPetGeantScinHits/JPetGeantScinHits.h>
 
 extern int num_2Gamma_bc, num_2Gamma_ac, num_3Gamma_bc, num_3Gamma_ac, num_prompt_bc, num_prompt_ac, num_scattered_bc, num_scattered_ac, num_1Gamma;
-
+extern int num_2gamma_no_scatter, num_2gamma_prompt, num_2gamma_no_scatter_prompt;
+extern int num_3gamma_no_scatter, num_3gamma_prompt, num_3gamma_no_scatter_prompt;
+extern int num_improper_prompt;
 static const double kLightVelocity_cm_ps = 0.0299792458;
 static const double kUndefinedValue = 999.0;
 
@@ -34,12 +36,16 @@ static const double kUndefinedValue = 999.0;
 class EventCategorizerTools
 {
 public:  
-  static bool checkFor1Gamma(const JPetEvent& event, double deexTOTCutMin, double deexTOTCutMax);
+  static bool checkFor1Gamma(const JPetEvent& event, double deexTOTCutMin, 
+		             double deexTOTCutMax, JPetStatistics& stats, bool saveHistos);
   static bool checkFor2Gamma(const JPetEvent& event, JPetStatistics& stats,
-                           bool saveHistos, double b2bSlotThetaDiff, double b2bTimeDiff);
+                             bool saveHistos, double b2bSlotThetaDiff, double b2bTimeDiff);
   static bool checkFor3Gamma(const JPetEvent& event, JPetStatistics& stats, bool saveHistos);
   static bool checkForPrompt(const JPetEvent& event, JPetStatistics& stats,
                              bool saveHistos, double deexTOTCutMin, double deexTOTCutMax, 
+                             std::string fTOTCalculationType);
+  static int checkWhichIsPrompt(const JPetEvent& event, JPetStatistics& stats,
+                             bool saveHistos, double deexTOTCutMin, double deexTOTCutMax,
                              std::string fTOTCalculationType);
   static bool checkForScatter(const JPetEvent& event, JPetStatistics& stats,
                               bool saveHistos, double scatterTOFTimeDiff, 
@@ -60,7 +66,7 @@ public:
   static TVector3 calculateAnnihilationPoint(const TVector3& hitA, const TVector3& hitB, double tof);
   static double calculatePlaneCenterDistance(const JPetHit& firstHit,
       const JPetHit& secondHit, const JPetHit& thirdHit);
-  static bool checkID(JPetGeantScinHits& firstHit, JPetGeantScinHits& secondHit);
+  static bool checkID(const JPetHit& firstHit, const JPetHit& secondHit);
 };
 
 #endif /* !EVENTCATEGORIZERTOOLS_H */

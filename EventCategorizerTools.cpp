@@ -20,19 +20,30 @@
 
 using namespace std;
 
-bool EventCategorizerTools::checkFor1Gamma(const JPetEvent& event, double deexTOTCutMin, double deexTOTCutMax){
+bool EventCategorizerTools::checkFor1Gamma(const JPetEvent& event, double deexTOTCutMin, double deexTOTCutMax, JPetStatistics& stats, bool saveHistos){
   double anniTOTCutMin=0.0;
   double anniTOTCutMax=350.0;
-  if (event.getHits().size() != 2) {
-    return false;
-  }
+  //if (event.getHits().size() != 2) {
+  //  return false;
+  //}
   int num_prompt = 0;
+  int num_photon = 0;
   for (unsigned i = 0; i < event.getHits().size(); i++) {
     double tot = event.getHits().at(i).getEnergy();
-    if (tot > deexTOTCutMin && tot < deexTOTCutMax) { num_prompt += 1;}
-    else if(event.getHits().at(i).getEnergy() < anniTOTCutMin || event.getHits().at(i).getEnergy() > anniTOTCutMax) return false;
+    if (tot > deexTOTCutMin && tot < deexTOTCutMax) { 
+	num_prompt += 1;
+	double prompt_time = event.getHits().at(i).getTime();
+	}
+    else{
+	double photon_time = event.getHits().at(i).getTime();
+	num_photon += 1;}
   }
-  if(num_prompt == 1){
+  if (saveHistos) {
+     stats.fillHistogram("Counter 1 Gamma distribution", num_photon);
+  }
+
+  if(num_prompt == 1 && num_photon == 1){
+    //if(saveHistos) stats.fillHistogram("Lifetime", abs(prompt_time - photon_time));
     num_1Gamma += 1;
     return true;}
 }
@@ -87,8 +98,10 @@ bool EventCategorizerTools::checkFor2Gamma(
           stats.fillHistogram("AnnihPoint_ZY", annhilationPoint.Z(), annhilationPoint.Y());
           stats.fillHistogram("Annih_DLOR", deltaLor);
         }
-        num_2Gamma_ac += 1;
-	return true;
+        if(!checkID(firstHit, secondHit)){
+	  num_2Gamma_ac += 1;
+	  return true;
+	}
       }
     }
   }
@@ -159,6 +172,29 @@ bool EventCategorizerTools::checkForPrompt(
   return false;
 }
 
+
+int EventCategorizerTools::checkWhichIsPrompt(
+  const JPetEvent& event, JPetStatistics& stats, bool saveHistos,
+  double deexTOTCutMin, double deexTOTCutMax, std::string fTOTCalculationType)
+{
+  int num_prompt = 0;
+  int ind = 0;
+  for (unsigned i = 0; i < event.getHits().size(); i++) {
+    num_prompt_bc += 1;
+    //double tot = HitFinderTools::calculateTOT(event.getHits().at(i), 
+    //    //                                          HitFinderTools::getTOTCalculationType(fTOTCalculationType));
+    double tot = event.getHits().at(i).getEnergy();
+    if (tot > deexTOTCutMin && tot < deexTOTCutMax) {
+    	num_prompt += 1;
+        ind = i;
+     }
+  }
+  if(num_prompt == 1){return ind;}
+  else{
+    //if(num_prompt != 0) cout<<num_prompt<<endl;	
+    return 1000;}
+}
+
 /**
 * Method for determining type of event - scatter
 */
@@ -190,18 +226,14 @@ bool EventCategorizerTools::checkForScatter(
       }
 
       if (saveHistos) {
-        stats.fillHistogram("ScatterAngle_PrimaryTOT_before_cut", scattAngle, HitFinderTools::calculateTOT(primaryHit,
-                                                        HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
-        stats.fillHistogram("ScatterAngle_ScatterTOT_before_cut", scattAngle, HitFinderTools::calculateTOT(scatterHit,
-                                                        HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
+        stats.fillHistogram("ScatterAngle_PrimaryTOT_before_cut", scattAngle, primaryHit.getEnergy());
+        stats.fillHistogram("ScatterAngle_ScatterTOT_before_cut", scattAngle, scatterHit.getEnergy());
       }
 
       if (fabs(scattTOF - timeDiff) < scatterTOFTimeDiff) {
         if (saveHistos) {
-          stats.fillHistogram("ScatterAngle_PrimaryTOT", scattAngle, HitFinderTools::calculateTOT(primaryHit, 
-                                                        HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
-          stats.fillHistogram("ScatterAngle_ScatterTOT", scattAngle, HitFinderTools::calculateTOT(scatterHit, 
-                                                        HitFinderTools::getTOTCalculationType(fTOTCalculationType)));
+          stats.fillHistogram("ScatterAngle_PrimaryTOT", scattAngle, primaryHit.getEnergy());
+          stats.fillHistogram("ScatterAngle_ScatterTOT", scattAngle, scatterHit.getEnergy());
         }
 	num_scattered_ac += 1;
         return true;
@@ -294,7 +326,7 @@ double EventCategorizerTools::calculatePlaneCenterDistance(
   }
 }
 
-bool EventCategorizerTools::checkID(JPetHit& firstHit, JPetHit& secondHit){
+bool EventCategorizerTools::checkID(const JPetHit& firstHit, const JPetHit& secondHit){
    return firstHit.getScintillator().getID() == secondHit.getScintillator().getID();
    //JPetHit --> .getScintillator().getID()
 

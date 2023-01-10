@@ -24,16 +24,22 @@
 
 using namespace std;
 
-int num_prompt_bc = 0;
-int num_prompt_ac = 0;
-int num_2Gamma_bc = 0;
-int num_2Gamma_ac = 0;
-int num_3Gamma_bc = 0;
-int num_3Gamma_ac = 0;
-int num_scattered_bc = 0;
-int num_scattered_ac = 0;
-int num_1Gamma = 0;
-
+int num_prompt_bc		 = 0;
+int num_prompt_ac		 = 0;
+int num_2Gamma_bc		 = 0;
+int num_2Gamma_ac		 = 0;
+int num_3Gamma_bc		 = 0;
+int num_3Gamma_ac		 = 0;
+int num_scattered_bc		 = 0;
+int num_scattered_ac		 = 0;
+int num_1Gamma			 = 0;
+int num_2gamma_no_scatter 	 = 0;
+int num_2gamma_prompt 		 = 0;
+int num_2gamma_no_scatter_prompt = 0;
+int num_3gamma_no_scatter 	 = 0;
+int num_3gamma_prompt		 = 0;
+int num_3gamma_no_scatter_prompt = 0;
+int num_improper_prompt 	 = 0;
 
 int main(int argc, const char* argv[])
 {
@@ -64,11 +70,16 @@ int main(int argc, const char* argv[])
     std::cerr << "Unrecoverable error occured:" << except.what() << "Exiting the program!" << std::endl;
     return EXIT_FAILURE;
   }
-  cout<<"Number of 2 Gamma before cut: "<<num_2Gamma_bc<<"\nNumber of 2 Gamma after cut: "<<num_2Gamma_ac<<endl;
-  cout<<"Number of 3 Gamma before cut: "<<num_3Gamma_bc<<"\nNumber of 3 Gamma after cut: "<<num_3Gamma_ac<<endl;
-  cout<<"Number of prompt before cut: "<<num_prompt_bc<<"\nNumber of prompt after cut: "<<num_prompt_ac<<endl;
-  cout<<"Number of scatter before cut: "<<num_scattered_bc<<"\nNumber of scatter after cut: "<<num_scattered_ac<<endl;
+  cout<<"Number of 2 Gamma before cut: "<<num_2Gamma_bc<<" Number of 2 Gamma after cut: "<<num_2Gamma_ac<<" Efficiency: "<<num_2Gamma_ac/double(num_2Gamma_bc)<<endl;
+  cout<<"Number of 3 Gamma before cut: "<<num_3Gamma_bc<<" Number of 3 Gamma after cut: "<<num_3Gamma_ac<<" Efficiency: "<<num_3Gamma_ac/double(num_3Gamma_bc)<<endl;
+  cout<<"Number of prompt before cut: "<<num_prompt_bc<<" Number of prompt after cut: "<<num_prompt_ac<<" Efficiency: "<<num_prompt_ac/double(num_prompt_bc)<<endl;
+  cout<<"Number of scattered before cut: "<<num_scattered_bc<<"Number of scattered after cut: "<<num_scattered_ac<<" Efficiency: "<<num_scattered_ac/double(num_scattered_bc)<<endl;
   cout<<"Number of 1 Gamma: "<<num_1Gamma<<endl;
-  cout<<"Efficiency: "<<float(num_1Gamma)/float(num_2Gamma_ac)<<endl;
-  return EXIT_SUCCESS;
+  cout<<"Efficiency (1 gamma/ 2 gamma): "<<float(num_1Gamma)/float(num_2Gamma_ac)<<endl;
+  cout<<"is2Gamma&&!isScattered: "<<num_2gamma_no_scatter<<" is2Gamma&&isPrompt: "<<num_2gamma_prompt<<" is2Gamma&&isPrompt&&!isScattered: "<<num_2gamma_no_scatter_prompt<<endl;
+  cout<<"is3Gamma&&!isScattered: "<<num_3gamma_no_scatter<<" is3Gamma&&isPrompt: "<<num_3gamma_prompt<<" is3Gamma&&isPrompt&&!isScattered: "<<num_3gamma_no_scatter_prompt<<endl;
+  cout<<"More that 1 prompt: "<<num_improper_prompt<<endl;
+  return EXIT_SUCCESS; 
 }
+
+

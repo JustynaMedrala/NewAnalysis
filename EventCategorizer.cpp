@@ -108,8 +108,17 @@ bool EventCategorizer::exec()
         event, getStatistics(), fSaveControlHistos, fScatterTOFTimeDiff, fTOTCalculationType
       );
       bool is1Gamma = EventCategorizerTools::checkFor1Gamma(
-	event, fDeexTOTCutMin, fDeexTOTCutMax
+	event, fDeexTOTCutMin, fDeexTOTCutMax, getStatistics(), fSaveControlHistos
       );
+      int whichIsPrompt = 1000;
+      if(isPrompt) whichIsPrompt = EventCategorizerTools::checkWhichIsPrompt(
+        event, getStatistics(), fSaveControlHistos, fDeexTOTCutMin, fDeexTOTCutMax, fTOTCalculationType
+      );
+      int whichIsPhoton1 = 0;
+      int whichIsPhoton2 = 0;
+      int whichIsPhoton3 = 0;
+      double xi, yi, zi, Li, ti = 0;
+      double kLightVelocity_cm_ps = 0.0299792458;
 
       JPetEvent newEvent = event;
       if(is2Gamma) newEvent.addEventType(JPetEventType::k2Gamma);
@@ -118,13 +127,62 @@ bool EventCategorizer::exec()
       if(isScattered) newEvent.addEventType(JPetEventType::kScattered);
 
       if(fSaveControlHistos){
-        for(auto hit : event.getHits()){
+	if(!isScattered&&is1Gamma&&isPrompt){
+          if(event.getHits().size()==2&&whichIsPrompt != 1000){
+       	    if(whichIsPrompt==0){ whichIsPhoton1=1;}
+ 	    else{whichIsPhoton1 = 0;}
+            getStatistics().fillHistogram("Lifetime 1 Gamma", event.getHits().at(whichIsPrompt).getTime() - event.getHits().at(whichIsPhoton1).getTime());
+	    getStatistics().fillHistogram("1Gamma_energy new", event.getHits().at(whichIsPhoton1).getEnergy());
+            getStatistics().fillHistogram("1Gamma_time new", event.getHits().at(whichIsPhoton1).getTime());
+	    ti = event.getHits().at(whichIsPhoton1).getTime();
+	    xi = event.getHits().at(whichIsPhoton1).getPosX()*event.getHits().at(whichIsPhoton1).getPosX();
+            yi = event.getHits().at(whichIsPhoton1).getPosY()*event.getHits().at(whichIsPhoton1).getPosY();
+	    zi = event.getHits().at(whichIsPhoton1).getPosX()*event.getHits().at(whichIsPhoton1).getPosX();
+            Li = sqrt(xi + yi + zi);
+	    getStatistics().fillHistogram("ti*c-Li", abs(ti)*kLightVelocity_cm_ps-Li);
+	  }
+	}
+	if(isPrompt&&whichIsPrompt != 1000){
+	  getStatistics().fillHistogram("Prompt_energy new", event.getHits().at(whichIsPrompt).getEnergy());
+          getStatistics().fillHistogram("Prompt_time new", event.getHits().at(whichIsPrompt).getTime());}
+	if(is2Gamma&&!isScattered) num_2gamma_no_scatter += 1;
+	if(is2Gamma&&isPrompt) num_2gamma_prompt += 1;
+	if(is2Gamma&&!isScattered&&isPrompt&&whichIsPrompt != 1000) num_2gamma_no_scatter_prompt += 1;
+	if(is3Gamma&&!isScattered) num_3gamma_no_scatter += 1;
+        if(is3Gamma&&isPrompt) num_3gamma_prompt += 1;
+        if(is3Gamma&&!isScattered&&isPrompt&&whichIsPrompt != 1000) num_3gamma_no_scatter_prompt += 1;
+
+	if(isPrompt&&whichIsPrompt == 1000) num_improper_prompt += 1;
+	if(is2Gamma&&isPrompt){
+	  if(event.getHits().size()==3&&whichIsPrompt != 1000){
+	    whichIsPhoton1 = (whichIsPrompt+1)%3; 
+       	    whichIsPhoton2 = (whichIsPrompt+2)%3;
+            getStatistics().fillHistogram("Lifetime 2 Gamma", event.getHits().at(whichIsPrompt).getTime()-(event.getHits().at(whichIsPhoton1).getTime()+event.getHits().at(whichIsPhoton2).getTime())/2.);}
+	}
+        if(is3Gamma&&isPrompt&&!isScattered){
+          if(event.getHits().size()==4&&whichIsPrompt != 1000){
+            whichIsPhoton1 = (whichIsPrompt+1)%4;
+            whichIsPhoton2 = (whichIsPrompt+2)%4;
+	    whichIsPhoton3 = (whichIsPrompt+3)%4;
+	    double time = event.getHits().at(whichIsPhoton1).getTime()+event.getHits().at(whichIsPhoton2).getTime()+event.getHits().at(whichIsPhoton3).getTime();
+            getStatistics().fillHistogram("Lifetime 3 Gamma", event.getHits().at(whichIsPrompt).getTime()-(time/3.));}
+        }
+
+	if(is2Gamma){
+	  for(auto hit : event.getHits()){ 
+	    getStatistics().fillHistogram("2Gamma_energy", hit.getEnergy());
+            getStatistics().fillHistogram("2Gamma_time", hit.getTime());
+	    if(isPrompt==0){
+	      //num_2gamma_prompt += 1;
+	      //cout<<hit.getEnergy()<<endl;
+	      getStatistics().fillHistogram("2Gamma_energy new", hit.getEnergy());
+              getStatistics().fillHistogram("2Gamma_time new", hit.getTime());}
+	  }
+	}
+	for(auto hit : event.getHits()){
           getStatistics().fillHistogram("All_XYpos", hit.getPosX(), hit.getPosY());
 	  getStatistics().fillHistogram("All_energy", hit.getEnergy());
 	  getStatistics().fillHistogram("All_time", hit.getTime());
-	  if(is2Gamma){ 
-		getStatistics().fillHistogram("2Gamma_energy", hit.getEnergy());
-		getStatistics().fillHistogram("2Gamma_time", hit.getTime());}
 	  if(is3Gamma){
 		getStatistics().fillHistogram("3Gamma_energy", hit.getEnergy());
 		getStatistics().fillHistogram("3Gamma_time", hit.getTime());}
@@ -134,6 +192,9 @@ bool EventCategorizer::exec()
 	  if(isScattered){
 		getStatistics().fillHistogram("Scattered_energy", hit.getEnergy());
 		getStatistics().fillHistogram("Scattered_time", hit.getTime());}
+	  if(is1Gamma&&!isScattered){
+		getStatistics().fillHistogram("1Gamma_energy", hit.getEnergy());
+                getStatistics().fillHistogram("1Gamma_time", hit.getTime());}
         }
       }
       events.push_back(newEvent);
@@ -237,6 +298,21 @@ void EventCategorizer::initialiseHistograms(){
     "Time [ps]", "Number of Hits"
   );
 
+  getStatistics().createHistogramWithAxes(
+    new TH1D("2Gamma_energy new", "Energy", 200, 0, 2000),
+    "Energy [keV]", "Number of Hits"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH1D("2Gamma_time new", "Time", 200, -60e6, 10e6),
+    "Time [ps]", "Number of Hits"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Lifetime 2 Gamma", "Lifeime", 200, -5e3, 5e3),
+    "Time [ps]", "Number of Hits"
+  );
+
   // Histograms for 3Gamama category
   getStatistics().createHistogramWithAxes(
     new TH2D("3Gamma_Angles", "Relative angles - transformed", 250, -0.5, 249.5, 20, -0.5, 199.5),
@@ -253,6 +329,11 @@ void EventCategorizer::initialiseHistograms(){
     "Time [ps]", "Number of Hits"
   );
 
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Lifetime 3 Gamma", "Lifeime", 200, -5e3, 5e3),
+    "Time [ps]", "Number of Hits"
+  );
+
   // Histograms for scattering category
   getStatistics().createHistogramWithAxes(
     new TH1D("ScatterTOF_TimeDiff", "Difference of Scatter TOF and hits time difference",
@@ -262,25 +343,25 @@ void EventCategorizer::initialiseHistograms(){
 
   getStatistics().createHistogramWithAxes(
     new TH2D("ScatterAngle_PrimaryTOT_before_cut", "Angle of scattering vs. TOT of primary hits before cut",
-    200, -0.5, 199.5, 10, -1.0, 2.0),
+    200, -0.5, 199.5, 100, -0, 2e3),
     "Scattering Angle", "TOT of primary hit [ps]"
   );
 
   getStatistics().createHistogramWithAxes(
     new TH2D("ScatterAngle_ScatterTOT_before_cut", "Angle of scattering vs. TOT of scattered hits before cut",
-    200, -0.5, 199.5, 10, -1.0, 2.0),
+    200, -0.5, 199.5, 100, -0, 2e3),
     "Scattering Angle", "TOT of scattered hit [ps]"
   );
 
   getStatistics().createHistogramWithAxes(
     new TH2D("ScatterAngle_PrimaryTOT", "Angle of scattering vs. TOT of primary hits",
-    200, -0.5, 199.5, 10, -1.0, 2.0),
+    200, -0.5, 199.5, 100, -0, 2e3),
     "Scattering Angle", "TOT of primary hit [ps]"
   );
 
   getStatistics().createHistogramWithAxes(
     new TH2D("ScatterAngle_ScatterTOT", "Angle of scattering vs. TOT of scattered hits",
-    200, -0.5, 199.5, 10, -1.0, 2.0),
+    200, -0.5, 199.5, 100, -0, 2e3),
     "Scattering Angle", "TOT of scattered hit [ps]"
   );
 
@@ -294,26 +375,58 @@ void EventCategorizer::initialiseHistograms(){
     "Time [ps]", "Number of Hit"
   );
 
-  //Histograms for prompt gamma category
+
   getStatistics().createHistogramWithAxes(
-    new TH1D("Prompt_energy", "Energy", 200, 0, 2000),
+    new TH1D("Prompt_time new", "Time", 200, -60e6, 10e6),
+    "Time [ps]", "Number of Hits"
+  );
+
+
+  // Histograms for deexcitation
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_TOT_cut", "TOT of all hits with deex cut (30,50) ns", 200, 500.0, 1500.0),
+    "TOT [ps]", "Number of Hits"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Deex_TOT_anticut", "TOT of all hits without deex cut (30, 50)  ns", 200, -10.0,700.0),
+    "TOT [ps]", "Number of Hits"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Counter 1 Gamma distribution", "Counter 1 Gamma distribution", 10, -0.5,9.5),
+    "Counter", "Number of Hits"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH1D("1Gamma_energy", "Energy", 200, 0, 2000),
     "Energy [keV]", "Number of Hits"
   );
 
   getStatistics().createHistogramWithAxes(
-    new TH1D("Prompt_time", "Time", 200, -60e6, 10e6),
+    new TH1D("1Gamma_time", "Time", 200, -60e6, 10e6),
     "Time [ps]", "Number of Hits"
   );
 
-  // Histograms for deexcitation
   getStatistics().createHistogramWithAxes(
-    new TH1D("Deex_TOT_cut", "TOT of all hits with deex cut (30,50) ns", 200, 24950.0, 54950.0),
-    "TOT [ps]", "Number of Hits"
+    new TH1D("1Gamma_energy new", "Energy", 200, 0, 2000),
+    "Energy [keV]", "Number of Hits"
   );
 
   getStatistics().createHistogramWithAxes(
-    new TH1D("Deex_TOT_anticut", "TOT of all hits without deex cut (30, 50)  ns", 200, 24950.0, 54950.0),
-    "TOT [ps]", "Number of Hits"
+    new TH1D("1Gamma_time new", "Time", 200, -60e6, 10e6),
+    "Time [ps]", "Number of Hits"
+  );
+
+
+  getStatistics().createHistogramWithAxes(
+    new TH1D("Lifetime 1 Gamma", "Lifeime", 200, -5e3, 5e3),
+    "Time [ps]", "Number of Hits"
+  );
+
+  getStatistics().createHistogramWithAxes(
+    new TH1D("ti*c-Li", "|ti|c-Li", 200, -50, 1.7e6),
+    "[cm]", "Number of Hits"
   );
 
 }
